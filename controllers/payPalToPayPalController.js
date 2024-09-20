@@ -68,21 +68,21 @@ exports.paypalToPayPal = catchAsyncError(async (req, response, next) => {
 });
 
 //Captures payment for an order. To successfully capture payment for an order, the buyer must first approve the order or a valid payment_source must be provided in the request
-const capturePaymen = catchAsyncError(
+exports.capturePaymen = catchAsyncError(
     async (req, Response, next) => {
       console.log(req.params, 'req parms');
       const accessToken = await genrateToken();
-  
       const res = await axios({
         url:
           process.env.PAYPAL_BASE_URL +
-          `/v2/checkout/orders/${req.params.id}/capture`,
+          `/v2/checkout/orders/${req.params.orderId}/capture`,
         method: 'post',
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer' + ' ' + accessToken,
         },
       });
+      console.log(res,'res');
       sendResponse(Response, true, 'payment confirm', res.data, 200);
     },
   );
