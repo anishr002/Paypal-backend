@@ -1,0 +1,10 @@
+{
+  "general": {
+    "invalidPassword": "Password should be at least 6 characters long and include at least one letter, one number, and one special character.",
+    "passwordRequired": "Password is required",
+    "invalidEmail": "Email is not valid.",
+    "emailRequired": "Email is required",
+    "contactNumberRequired": "Contact number is required",
+    "nameRequired": "Name is required"
+  }
+}

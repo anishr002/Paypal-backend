@@ -1,0 +1,25 @@
+{
+  "auth": {
+    "userNotFound": "Invalid user or password",
+    "incorrectPassword": "Email or password is incorrect.",
+    "loggedIn": "Logged in successfully.",
+    "invalidEmail": "Email is invalid.",
+    "invalidPassword": "Password should contain one uppercase letter, one lowercase letter, one special character, one number and minimum 8 length.",
+    "emailRequired": "Email is required.",
+    "invalidToken": "Token is invalid.",
+    "resetPasswordMailSent": "Reset password mail is sent. please check your inbox.",
+    "passwordChanged": "Password changed successfully.",
+    "unAuthorized": "You are un-authorized to perform this action.",
+    "passwordRequired": "Old and new passwords are required.",
+    "insufficientPermission": "In-sufficient permission.",
+    "registered": "User registered successfully.",
+    "passwordNotMatch": "Old password does not match.",
+    "resetPassword": "Password reset successfully.",
+    "emailExist": "Email already exist. please choose another email."
+  },
+  "emailTemplate": {
+    "forgotPasswordSubject": "Passwordd reset"
+  },
+
+  "default": { "default": "Something went wrong." }
+}
