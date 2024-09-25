@@ -3,6 +3,7 @@ const {
   capturePaymen,
 } = require("../controllers/payPalToPayPalController");
 const paypalController = require("../controllers/paypalController");
+const { cancelSubscription } = require("../controllers/subscriptionController");
 
 const advancePaypalRoute = require("express").Router();
 
@@ -14,5 +15,7 @@ advancePaypalRoute.get(
   "/generate-client-token",
   paypalController.generateClientToken
 );
+
+advancePaypalRoute.post("/cancel", cancelSubscription);
 
 module.exports = advancePaypalRoute;
