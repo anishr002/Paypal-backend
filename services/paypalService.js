@@ -82,34 +82,32 @@ async function refundPayment(captureId, amount) {
   const uniqueRequestId = uuidv4();
   const uniqueInvoiceId = `INV-${Date.now()}`; // Unique invoice ID
 
-  const response = await fetch(
-    `https://api-m.sandbox.paypal.com/v2/payments/captures/${captureId}/refund`,
-    {
+  try {
+    const response = await axios({
       method: "POST",
+      url: `https://api-m.sandbox.paypal.com/v2/payments/captures/${captureId}/refund`,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
         "PayPal-Request-Id": uniqueRequestId, // Ensure this ID is unique for each request
         Prefer: "return=representation",
       },
-      body: JSON.stringify({
+      data: {
         amount: {
           value: amount.toFixed(2),
           currency_code: "USD",
         },
         invoice_id: uniqueInvoiceId, // Optional
         note_to_payer: "DefectiveProduct", // Optional
-      }),
-    }
-  );
+      },
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Refund failed: ${error}`);
+    return response.data;
+  } catch (err) {
+    throw new Error(
+      `Refund failed: ${err.response ? err.response.data : err.message}`
+    );
   }
-
-  const data = await response.json();
-  return data;
 }
 
 module.exports = {
