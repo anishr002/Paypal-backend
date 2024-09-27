@@ -1,12 +1,24 @@
+// models/Order.js
 const mongoose = require("mongoose");
+const { mongo_connection } = require("../config/connection");
 
-const captureOrderSchema = new mongoose.Schema({
-  captureID: String,
-
-  status: String,
-  createdAt: { type: Date, default: Date.now },
+const OrderSchema = new mongoose.Schema({
+  orderID: {
+    type: String,
+    required: true,
+  },
+  purchaseUnits: {
+    type: Array, // Use appropriate type based on your data
+    required: true,
+  },
+  status: {
+    type: String,
+    default: "Success", // Default status can be PENDING
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const CaptureOrder = mongoose.model("CaptureOrder", captureOrderSchema);
-
-module.exports = CaptureOrder;
+module.exports = mongo_connection.model("Order", OrderSchema);

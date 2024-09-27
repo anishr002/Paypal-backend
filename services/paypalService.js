@@ -1,7 +1,5 @@
-const { createClient } = require("../config/paypalConfig");
-const checkoutNodeJssdk = require("@paypal/checkout-server-sdk");
+const Order = require("../models/captureOrderSchema"); // Adjust the path as needed
 const { v4: uuidv4 } = require("uuid");
-
 const { default: axios } = require("axios");
 
 // Generate PayPal access token (client credentials)
@@ -18,7 +16,7 @@ async function generateToken() {
   return res?.data?.access_token;
 }
 
-// Generate client token for Braintree/PayPal transactions
+// Generate client token for PayPal transactions
 async function generateClientToken() {
   const accessToken = await generateToken();
   const res = await axios({
@@ -29,54 +27,58 @@ async function generateClientToken() {
       "Content-Type": "application/json",
     },
   });
-  console.log(res, "res");
   return res?.data?.client_token;
 }
 
-// Create an order
-async function createOrder() {
-  const client = createClient();
-  const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
-  request.prefer("return=representation");
-  request.requestBody({
-    intent: "CAPTURE",
-    purchase_units: [
-      {
-        amount: {
-          currency_code: "USD",
-          value: "100.00", // Replace with your amount
-        },
+// Create an order using PayPal API
+async function createOrder(purchaseUnits) {
+  const accessToken = await generateToken();
+  console.log(purchaseUnits, "purchaseUnits");
+  const res = await axios({
+    url: process.env.PAYPAL_BASE_URL + "/v2/checkout/orders",
+    method: "post",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    data: {
+      intent: "CAPTURE",
+      purchase_units: purchaseUnits,
+      application_context: {
+        return_url: "https://your-site.com/return",
+        cancel_url: "https://your-site.com/cancel",
       },
-    ],
-    application_context: {
-      return_url: "https://your-site.com/return",
-      cancel_url: "https://your-site.com/cancel",
     },
   });
 
-  try {
-    const order = await client.execute(request);
-    return order.result.id;
-  } catch (err) {
-    throw err;
-  }
+  // Save the order in MongoDB
+  const newOrder = new Order({
+    orderID: res.data.id,
+    purchaseUnits: purchaseUnits,
+    status: "Success",
+  });
+
+  await newOrder.save(); // Save to the database
+  return res.data.id; // Return the order ID
 }
 
-// Capture an order
+// Capture an order using PayPal API
 async function captureOrder(orderID) {
-  const client = createClient();
-  const request = new checkoutNodeJssdk.orders.OrdersCaptureRequest(orderID);
-  request.requestBody({});
+  const accessToken = await generateToken();
 
-  try {
-    const capture = await client.execute(request);
-    return capture;
-  } catch (err) {
-    throw err;
-  }
+  const res = await axios({
+    url: `${process.env.PAYPAL_BASE_URL}/v2/checkout/orders/${orderID}/capture`,
+    method: "post",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res.data; // Return the capture details
 }
 
-// Function to process a refund without platform fees
+// Function to process a refund using PayPal API
 async function refundPayment(captureId, amount) {
   const accessToken = await generateToken();
   const uniqueRequestId = uuidv4();
@@ -85,7 +87,7 @@ async function refundPayment(captureId, amount) {
   try {
     const response = await axios({
       method: "POST",
-      url: `https://api-m.sandbox.paypal.com/v2/payments/captures/${captureId}/refund`,
+      url: `${process.env.PAYPAL_BASE_URL}/v2/payments/captures/${captureId}/refund`,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
