@@ -14,8 +14,28 @@ exports.getAllOrders = async (req, res) => {
 // Create Order
 exports.createOrder = async (req, res) => {
   const purchaseUnits = req?.body?.purchaseUnits; // Get purchase units from request body
+
+  const newpurchaseUnits = purchaseUnits || [
+    {
+      item: [
+        {
+          name: "product",
+          descripations: "product",
+          quantity: 1,
+          units_amount: { currency_code: "USD", value: "100.00" },
+        },
+      ],
+      amount: {
+        currency_code: "USD",
+        value: "100.00",
+        breakdown: {
+          item_total: { currency_code: "USD", value: "100.00" },
+        },
+      },
+    },
+  ];
   try {
-    const orderID = await paypalService.createOrder(purchaseUnits);
+    const orderID = await paypalService.createOrder(newpurchaseUnits);
     res.json({ id: orderID });
   } catch (err) {
     console.error(err);
