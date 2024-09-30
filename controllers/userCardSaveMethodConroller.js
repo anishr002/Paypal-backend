@@ -217,23 +217,22 @@ exports.makepaymentwithsaveCardV2 = catchAsyncError(async (req, response, next) 
             payment_source: {
                 card: {
                     id: cardToken,   // Stored card token
-                    //type: 'CREDIT_CARD' // Type should be CREDIT_CARD
-                    
-                },
-                card: {
-                    number: "4111111111111111",  // Sample Visa card number (replace with actual data)
-                    expiry: "2026-12",          // Expiry in YYYY-MM format
-                    security_code: "123",       // CVV code
-                    name: "John Doe",           // Cardholder's name
-                    billing_address: {
-                        address_line_1: "123 Main St",
-                        address_line_2: "Apt 4",
-                        admin_area_2: "San Francisco",
-                        admin_area_1: "CA",   // State/Province
-                        postal_code: "94107",
-                        country_code: "US"    // ISO country code
-                    }
+                    type: 'CARD' // Type should be CREDIT_CARD
                 }
+                // card: {
+                //     number: "4111111111111111",  // Sample Visa card number (replace with actual data)
+                //     expiry: "2026-12",          // Expiry in YYYY-MM format
+                //     security_code: "123",       // CVV code
+                //     name: "John Doe",           // Cardholder's name
+                //     billing_address: {
+                //         address_line_1: "123 Main St",
+                //         address_line_2: "Apt 4",
+                //         admin_area_2: "San Francisco",
+                //         admin_area_1: "CA",   // State/Province
+                //         postal_code: "94107",
+                //         country_code: "US"    // ISO country code
+                //     }
+                // }
             }
         };
 
