@@ -215,7 +215,7 @@ exports.makepaymentwithsaveCardV2 = catchAsyncError(async (req, response, next) 
         // Step 5: Capture the payment using the stored card token
         const captureRequest = {
             payment_source: {
-                card: {
+                token: {
                     id: cardToken,   // Stored card token
                     type: 'CARD' // Type should be CREDIT_CARD
                 }
