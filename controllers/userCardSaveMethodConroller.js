@@ -150,6 +150,88 @@ exports.makepaymentwithsaveCard = catchAsyncError(async (req, response, next) =>
 });
 
 
+//api v2 payment with store card
+exports.makepaymentwithsaveCardV2 = catchAsyncError(async (req, response, next) => {
+    console.log('Payment request received with stored card token');
+    const { cardId, amount } = req.body;
+    const userId = 1; // Example userId, replace as needed
+
+    try {
+        // Step 1: Retrieve the card token from the database
+        const card = await Card.findOne({ _id: cardId, userId: userId });
+        if (!card) {
+            sendResponse(response, false, 'Card not found for this user', '', 404);
+            return;
+        }
+
+        const cardToken = card.cardToken; // Stored card token
+        console.log(cardToken, 'Stored card token found');
+
+        // Step 2: Get PayPal access token
+        const accessToken = await getPayPalAccessToken();
+
+        // Step 3: Create an order
+        const orderRequest = {
+            intent: 'CAPTURE',
+            purchase_units: [{
+                amount: {
+                    currency_code: 'USD',
+                    value: amount, // Use the amount passed from the request body
+                },
+                payee: {
+                    merchant_id: 'F2EJBXZ4ZQF54', // Replace with your sandbox merchant ID
+                },
+                description: "Payment for order using stored card token"
+            }]
+        };
+
+        // Step 4: Create an order on PayPal
+        const orderResult = await axios({
+            url: 'https://api-m.sandbox.paypal.com/v2/checkout/orders',
+            method: 'post',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            data: orderRequest
+        });
+
+        const orderId = orderResult.data.id;
+        console.log(orderResult.data, 'Order created');
+
+        // Step 5: Capture the payment using the stored card token
+        const captureRequest = {
+            payment_source: {
+                token: {
+                    id: cardToken,   // Stored card token
+                    type: 'CREDIT_CARD' // Type should be CREDIT_CARD
+                }
+            }
+        };
+
+        const paypalRequestId = `req-${Date.now()}`; // Generate a unique PayPal-Request-Id
+
+        // Step 6: Capture the payment
+        const captureResult = await axios({
+            url: `https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderId}/capture`,
+            method: 'post',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                'PayPal-Request-Id': paypalRequestId, // Unique PayPal-Request-Id header
+            },
+            data: captureRequest
+        });
+
+        console.log(captureResult.data, 'Payment captured successfully');
+        sendResponse(response, true, 'Payment captured successfully', captureResult.data, 200);
+    } catch (error) {
+        console.error('Error:', error.response?.data || error.message);
+        sendResponse(response, false, error.message, error.response?.data || error, 400);
+    }
+});
+
+
 const getfunavtions=async()=>{
     const accessToken = await getPayPalAccessToken(); 
   console.log(userCards,'usercard')
