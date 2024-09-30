@@ -89,19 +89,6 @@ paypal.configure({
     } catch (error) {
         return sendResponse(response, false, 'Error saving payment method', error || error, 400);
     }
-  
-
-//   // Create the billing agreement
-//   paypal.billingAgreement.create(agreement_data, function (error, billingAgreement) {
-//     if (error) {
-//       console.error('Error saving payment method:', error);
-//       return sendResponse(response, false, 'Error saving payment method', error.response || error, 400);
-//     } else {
-//       // Save the billingAgreement ID for future payments
-//       console.log('Billing Agreement saved:', billingAgreement);
-//       sendResponse(response, true, 'Payment method saved successfully', billingAgreement, 200);
-//     }
-//   });
    });
 
 

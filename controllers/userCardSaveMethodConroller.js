@@ -74,7 +74,7 @@ exports.userCardsave = catchAsyncError(async (req, res, next) => {
         //res.status(500).json({ success: false, error: error.message });
     }
 });
-//get user card by id
+//get user card by id list api
 exports.getUsercardByid = catchAsyncError(async (req, response, next) => {
     const userId = 1; // Retrieve the user ID from the token/session
 
@@ -88,6 +88,8 @@ exports.getUsercardByid = catchAsyncError(async (req, response, next) => {
     }
 });
 
+
+//make payment with v1 api 
 exports.makepaymentwithsaveCard = catchAsyncError(async (req, response, next) => {
     console.log('come')
     const { cardId, amount } = req.body;
@@ -198,13 +200,39 @@ exports.makepaymentwithsaveCardV2 = catchAsyncError(async (req, response, next) 
 
         const orderId = orderResult.data.id;
         console.log(orderResult.data, 'Order created');
+        //get store card details from the api 
+        const result = await axios({
+            url: `https://api-m.sandbox.paypal.com/v1/vault/credit-cards/${cardToken}`,
+            method: 'get',
+            headers: {
+               Authorization: 'Bearer' + ' ' + accessToken,
+                'Content-Type': 'application/json',
+            },
+        });
+      
+        console.log('Stored Card Details:', result.data);
 
         // Step 5: Capture the payment using the stored card token
         const captureRequest = {
             payment_source: {
-                token: {
+                card: {
                     id: cardToken,   // Stored card token
-                    type: 'CREDIT_CARD' // Type should be CREDIT_CARD
+                    //type: 'CREDIT_CARD' // Type should be CREDIT_CARD
+                    
+                },
+                card: {
+                    number: "4111111111111111",  // Sample Visa card number (replace with actual data)
+                    expiry: "2026-12",          // Expiry in YYYY-MM format
+                    security_code: "123",       // CVV code
+                    name: "John Doe",           // Cardholder's name
+                    billing_address: {
+                        address_line_1: "123 Main St",
+                        address_line_2: "Apt 4",
+                        admin_area_2: "San Francisco",
+                        admin_area_1: "CA",   // State/Province
+                        postal_code: "94107",
+                        country_code: "US"    // ISO country code
+                    }
                 }
             }
         };
@@ -231,47 +259,6 @@ exports.makepaymentwithsaveCardV2 = catchAsyncError(async (req, response, next) 
     }
 });
 
-
-const getfunavtions=async()=>{
-    const accessToken = await getPayPalAccessToken(); 
-  console.log(userCards,'usercard')
-
-  // Step 3: Fetch card details from PayPal using the stored creditCardId
-  const result = await axios({
-      url: `https://api-m.sandbox.paypal.com/v1/vault/credit-cards/${userCards?.cardToken}`,
-      method: 'get',
-      headers: {
-         Authorization: 'Bearer' + ' ' + accessToken,
-          'Content-Type': 'application/json',
-      },
-  });
-
-  console.log('Stored Card Details:', result.data);
-  return result.data;
-
-   const paymentRequest = {
-            intent: "sale",
-            payer: {
-                payment_method: "credit_card",
-                funding_instruments: [{
-                    credit_card_token: {
-                        credit_card_id: card.cardToken // Use stored vaulted card token
-                    }
-                }]
-            },
-            transactions: [{
-                amount: {
-                    "currency": "USD",
-            "total": "100.00"
-                },
-                description: "Payment using stored card",
-                payee: {
-                    email: "merchant-email@example.com"  // Specify the merchant's email or merchant ID
-                }
-            }]
-
-        };
-  }
   
 
 

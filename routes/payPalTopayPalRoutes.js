@@ -1,5 +1,5 @@
 const { paypalToPayPal, capturePaymen } = require("../controllers/payPalToPayPalController");
-const { paypalcreateorderSDK, paypalsavemethods, cancelSubscriptionAndRefund } = require("../controllers/SaveMethods");
+const { paypalcreateorderSDK, paypalsavemethods, cancelSubscriptionAndRefund } = require("../controllers/PlanMethods");
 
 const paypalRoute = require("express").Router();
 

@@ -13,7 +13,7 @@ exports.getAllOrders = async (req, res) => {
 
 // Create Order
 exports.createOrder = async (req, res) => {
-  const purchaseUnits = req.body.purchaseUnits; // Get purchase units from request body
+  const purchaseUnits = req?.body?.purchaseUnits; // Get purchase units from request body
   try {
     const orderID = await paypalService.createOrder(purchaseUnits);
     res.json({ id: orderID });
